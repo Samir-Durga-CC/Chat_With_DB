@@ -439,7 +439,7 @@ Use this tool for:
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "collection": {
+                    "country_name": {
                         "type": "string",
                         "description": "Vector store collection name"
                     },
@@ -509,10 +509,20 @@ def execute_tool(tool_name: str, arguments: Dict[str, Any]) -> str:
 
         
         elif tool_name == "query_vector_store":
-            collection = arguments.get("collection", "")
+            country_name = arguments.get("country_name", "")
+            collection=postgres_service.execute(f"""SELECT "id" FROM "public"."countries" WHERE "name" = '{country_name}' LIMIT 1;""")
+            logger.info(f"Resolving vector store collection for country: {country_name} -> {collection}")
+            if collection['count']==0:
+                return json.dumps({
+                    'success': False,
+                    'error': f'Country not found: {country_name}'
+                }, indent=2, default=str)
+            collection=collection['data'][0]['id']
+            logger.info(f"Vector store collection resolved: {collection}")
             query = arguments.get("query", "")
             limit = arguments.get("limit", 5)
             result = vector_service.query(collection, query, limit)
+            logger.info(f"Vector store query executed: {result}")
             return json.dumps(result, indent=2,default=str)
         
         else:
@@ -547,13 +557,40 @@ You provide accurate, concise, and well-formatted responses.
 1. PostgreSQL Database (Product Data):
 {postgres_service.get_schema()}
 
-2. MongoDB Database (Regulations):
+2. MongoDB Database (Regulations metadata):
 {mongo_service.get_schema()}
 
-3. Qdrant Vector Store (Semantic Search):
-   - For finding similar documents and specifications
-   - Use for context-based queries
+
+3. Qdrant Vector Store (Regulatory Texts):
+   - Stores full regulatory documents, clauses, and legal text
+   - Used for semantic understanding and interpretation only
 </capabilities>
+<vector_usage_policy>
+Qdrant MUST be used only when semantic understanding of regulatory text is required.
+
+Use Qdrant WHEN:
+- The user asks for explanations, requirements, obligations, or interpretations
+  of regulations or standards.
+- The query contains phrases like:
+  "what does this regulation say",
+  "compliance requirements",
+  "documents required",
+  "legal meaning",
+  "is it allowed",
+  "how to comply",
+  "certification needed",
+  "safety standards".
+- Structured data alone is insufficient.
+
+Do NOT use Qdrant WHEN:
+- The query is a simple lookup, filter, or count.
+- The answer exists directly in PostgreSQL or MongoDB fields.
+
+Vector Search Rules:
+- Always apply metadata filters (jurisdiction, country, category).
+- Never perform unscoped global searches.
+- Summarize results; do not expose raw legal text unless requested.
+</vector_usage_policy>
 
 <critical_rules>
 1. **Tool Usage Intelligence**:
@@ -585,7 +622,7 @@ You provide accurate, concise, and well-formatted responses.
 
 6. **Data privacy and simplification**:
    - Treat columns like "id", "createdAt", "updatedAt", "countryId", "categoryId",
-     "productMetaId" and other values as internal identifiers.
+     "productMetaId", "show in knowledgebase" and other values as internal identifiers. instead show human-friendly values.
    - Do NOT show these raw values to the user.
    - Instead, summarize products in human language and only include:
      - product code
@@ -612,6 +649,17 @@ Tool: query_mongodb
 Operation: {{"collection": "regulations", "action": "find", "params": {{"query": {{"topic": "safety"}}, "limit": 5}}}}
 Response: "I found 5 safety regulations. Here are the key findings: [summary]"
 
+Example 4 – Vector DB with REQUIRED Country UUID (CORRECT FLOW):
+
+User:
+"What are the compliance requirements for electronic products in Germany?"
+Tool: query_vector_store
+Arguments:
+{{"country_name": "Germany",
+"query": "compliance requirements for electronic products",
+"limit": 5}}
+Response:
+"I found several compliance requirements for electronic products in Germany. Key points include: [summary]."
 
 </examples>
 
@@ -978,7 +1026,7 @@ async def main():
         await example_streaming()
         
         # Run non-streaming example
-        await example_non_streaming()
+        # await example_non_streaming()
         
     except KeyboardInterrupt:
         print("\n\nInterrupted by user")
