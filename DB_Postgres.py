@@ -160,12 +160,8 @@ generate queries based on requests, and retrieve data and information.
    
     <rule>Try to use queries most of the time and execute them.</rule>
     
-    <rule>PostgreSQL identifiers are case-sensitive. Any table or column name with uppercase letters MUST be wrapped in double quotes.</rule>
-    <rule>Use the database schema EXACTLY as provided. Do not remove double quotes from identifiers.</rule>
-    <rule>Always suggest best practices.</rule>
-    <rule>Default limit on SELECT is 10 rows unless user asks for more.</rule>
-    <rule>When listing data, use Markdown table format with headers and rows.</rule>
-    <rule>Optimize queries for performance and readability.</rule>
+ 
+ d readability.</rule>
 </rules>
 
 <general_guidelines>

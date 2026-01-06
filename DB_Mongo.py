@@ -282,7 +282,75 @@ def format_json(data):
         return json.dumps(json.loads(json_str), indent=2)
     except:
         return str(data)
-
+def invoke_mongodb_operation(db_service, operation, description):
+    
+   
+    # Initialize database service
+    db = MongoDBService(MONGO_CONFIG)
+    
+    # Connect to database
+    if not db.connect():
+        return
+    
+    try:
+        db.test_connection()
+        print(f"{COLORS['green']}✓ MongoDB connection successful!{COLORS['reset']}")
+        print(f"Connected to: {MONGO_CONFIG['database']} via Docker MongoDB on port 27020\n")
+    except Exception as e:
+        print(f"{COLORS['red']}Connection test failed: {e}{COLORS['reset']}")
+        return
+    
+    # Get database schema
+    print("Loading database schema...")
+    schema = db.get_schema()
+    
+    # Initialize OpenAI client
+    client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+    
+    # Initialize chat history
+    chat_history = []
+    
+    # Get initial database overview
+  
+    
+ 
+    
+    # Database tools definition
+    tools = [{
+        'type': 'function',
+        'function': {
+            'name': 'execute_mongodb_operation',
+            'description': 'Execute a MongoDB operation. Use for find, insert, update, delete, aggregate, and count operations.',
+            'parameters': {
+                'type': 'object',
+                'properties': {
+                    'operation': {
+                        'type': 'string',
+                        'description': 'JSON string containing the MongoDB operation with collection, action, and params'
+                    },
+                    'description': {
+                        'type': 'string',
+                        'description': 'Brief description of what the operation does'
+                    }
+                },
+                'required': ['operation', 'description']
+            }
+        }
+    }]
+    
+    # Get initial response
+    response = client.chat.completions.create(
+        model=OPENAI_MODEL,
+        messages=[
+            {'role': 'system', 'content': get_system_prompt(schema)},
+            *chat_history
+        ],
+        tools=tools,
+        tool_choice='auto'
+    )
+    
+    assistant_message = response.choices[0].message
+    return assistant_message
 
 def main():
     """Main chat loop"""
