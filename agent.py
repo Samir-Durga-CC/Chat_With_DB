@@ -16,6 +16,7 @@ from psycopg2.extras import RealDictCursor
 from pymongo import MongoClient
 from bson import json_util
 from dotenv import load_dotenv
+from conversationModule import ConversationHistory,process_query_stream_with_history
 
 # Configure logging
 logging.basicConfig(
@@ -976,7 +977,9 @@ async def example_streaming():
         print(f"{'='*60}")
         print("Response: ", end="", flush=True)
         
-        async for chunk in process_query_stream(query):
+        conversation = ConversationHistory(max_messages=20)
+        conversation.set_system_prompt(build_system_prompt())
+        async for chunk in process_query_stream_with_history(query, conversation):
             if chunk.startswith("data: "):
                 try:
                     data = json.loads(chunk[6:])

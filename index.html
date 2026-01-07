@@ -238,6 +238,8 @@
 
     <script>
         const API_URL = 'http://localhost:8000';
+
+        let currentSessionId = null; //  Global session storage
         let isStreaming = false;
         let assistantContent = null;
         let currentText = '';
@@ -309,6 +311,7 @@
             document.getElementById('status').textContent = text;
         }
 
+
         async function sendQuery() {
             const input = document.getElementById('queryInput');
             const query = input.value.trim();
@@ -327,17 +330,21 @@
             isStreaming = true;
             document.getElementById('sendBtn').disabled = true;
             updateStatus('Thinking...');
-
+            const requestBody = {
+                query,
+                session_id: currentSessionId  // Send session_id if exists
+            };
             try {
                 const response = await fetch(`${API_URL}/api/stream`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query })
+                    body: JSON.stringify(requestBody)
                 });
 
                 if (!response.ok) {
                     throw new Error(`Server error: ${response.status}`);
                 }
+
 
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
@@ -359,7 +366,12 @@
 
                         try {
                             const data = JSON.parse(jsonStr);
-
+                            // Handle session ID
+                            if (data.type === 'session_id') {
+                                currentSessionId = data.session_id;
+                                console.log(`Session ID: ${currentSessionId}`);
+                                continue;
+                            }
                             // Handle tool call
                             if (data.type === 'tool_call') {
                                 addToolCall(data.tool || data.name, data.args || data.arguments);
