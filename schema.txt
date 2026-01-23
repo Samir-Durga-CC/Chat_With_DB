@@ -1,0 +1,20 @@
+-- PostgreSQL Database Schema
+
+CREATE TABLE "public"."alembic_version" ("version_num" varchar(32) NOT NULL);
+
+CREATE TABLE "public"."categories" ("id" uuid NOT NULL, "name" varchar(200) NOT NULL, "createdAt" timestamptz, "createdBy" jsonb NOT NULL, "updatedAt" timestamptz, "updatedBy" jsonb, "deletedAt" timestamptz);
+
+CREATE TABLE "public"."countries" ("id" uuid NOT NULL, "name" varchar(200), "code" varchar(100), "createdAt" timestamptz NOT NULL, "updatedAt" timestamp NOT NULL, "description" text, "deletedAt" timestamptz, "lat" float8, "lng" float8, "countryGroupId" uuid, "countryIds" _uuid);
+
+CREATE TABLE "public"."countries_group" ("id" uuid NOT NULL, "name" varchar(100) NOT NULL, "countries_list" _uuid NOT NULL, "createdAt" timestamptz, "updatedAt" timestamptz, "createdBy" jsonb, "updatedBy" jsonb, "deletedAt" timestamptz);
+
+CREATE TABLE "public"."country_faqs" ("id" uuid NOT NULL, "countryId" uuid NOT NULL, "question" varchar(500) NOT NULL, "answer" varchar(2000) NOT NULL, "createdAt" timestamptz NOT NULL, "updatedAt" timestamptz NOT NULL, "deletedAt" timestamptz, "createdBy" jsonb, "updatedBy" jsonb);
+
+CREATE TABLE "public"."product_import_country" ("product_import_id" uuid, "country_id" uuid);
+
+CREATE TABLE "public"."product_imports" ("id" uuid NOT NULL, "productMetaId" uuid NOT NULL, "fileName" varchar(200) NOT NULL, "filePath" text NOT NULL, "createdBy" jsonb NOT NULL, "updatedBy" jsonb, "status" varchar(50) NOT NULL, "errors" text, "createdAt" timestamptz, "updatedAt" timestamptz);
+
+CREATE TABLE "public"."product_metas" ("id" uuid NOT NULL, "countryIds" _uuid NOT NULL, "source" varchar(200) NOT NULL, "countryGroupId" uuid, "versionDate" timestamptz, "dataOrigin" text, "createdAt" timestamptz, "updatedAt" timestamptz);
+
+CREATE TABLE "public"."products" ("id" uuid NOT NULL, "categoryId" uuid, "productMetaId" uuid NOT NULL, "code" varchar(20) NOT NULL, "description" text NOT NULL, "synonyms" varchar(100), "createdAt" timestamptz, "createdBy" jsonb, "updatedAt" timestamptz, "updatedBy" jsonb, "deletedAt" timestamptz, "countryId" uuid, "show_in_knowledge_base" bool NOT NULL, "countryGroupId" uuid, "referenceId" uuid);
+

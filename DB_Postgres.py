@@ -150,6 +150,8 @@ class DatabaseService:
 
 def get_system_prompt(schema):
     """Generate system prompt with database schema"""
+    with open('schema.txt', 'w', encoding='utf-8') as f:
+        f.write(schema)
     return f"""
 <role>
 You are a helpful SQL assistant. You help users interact with PostgreSQL databases, 
