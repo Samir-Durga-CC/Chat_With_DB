@@ -3,7 +3,7 @@
 
 Collection: countries
 
-Document Count: 234
+Document Count: 231
 
 Fields: "uuid" (str), "__v" (int), "code" (str), "lat" (float), "lng" (float), "name" (str), "queueStatus" (str), "showInKnowledgeBase" (bool)
 
@@ -11,24 +11,18 @@ Fields: "uuid" (str), "__v" (int), "code" (str), "lat" (float), "lng" (float), "
 
 Collection: excludedproducts
 
-Document Count: 3
-
-Fields: "country_uuid" (str), "name" (str), "hs_code" (str), "reference" (str), "regulation_id" (ObjectId), "__v" (int)
+Document Count: 0
 
 ------------------------------------------------------------
 
 Collection: internationallinkages
 
-Document Count: 1
-
-Fields: "country_uuid" (str), "scheme_document_name" (str), "recognition_status" (str), "recognition_conditions" (dict), "notes" (str), "regulation_id" (ObjectId), "__v" (int)
+Document Count: 0
 
 ------------------------------------------------------------
 
 Collection: regulationmetadatas
 
-Document Count: 14
-
-Fields: "country_uuid" (str), "regulation_name" (str), "jurisdiction" (str), "legal_reference" (str), "entry_into_force_date" (str), "status" (str), "responsible_authority" (str), "surveillance_authority" (str), "ai_confidence_score" (int), "notified_bodies" (str), "tags" (str), "source_links" (str), "version_history" (str), "__v" (int)
+Document Count: 0
 
 ------------------------------------------------------------

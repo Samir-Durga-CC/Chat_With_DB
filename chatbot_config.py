@@ -23,7 +23,7 @@ class DatabaseConfig:
     POSTGRES_PORT = int(os.getenv('POSTGRES_PORT', 5432))
     
     # MongoDB
-    MONGO_URI = os.getenv('MONGO_URI', 'mongodb://root:password@192.168.10.159:27020/')
+    MONGO_URI = os.getenv('MONGO_URI', 'mongodb://root:password@10.212.69.113:27020/')
     MONGO_DB = os.getenv('MONGO_DB', 'alpha-kcc')
     MONGO_DB_NAME = os.getenv('MONGO_DB_NAME', 'conversationhistory')
 
